@@ -1,4 +1,5 @@
-# System Design Document: Document Summarization Application
+# Document Summarization Architecture overview
+This page provides an overview of the architecture of the Document Summarization sample application based on LlamaIndex.
 
 ## Overview
 
@@ -72,5 +73,5 @@ The following figure shows the data flow:
 
 ## References
 
-- README.md
-- config.py (for environment/config management)
+- [Get Started](./get-started.md)
+- [System Requirements](./system-requirements.md)
