@@ -31,6 +31,10 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Default optimization parameter values
+DEFAULT_BATCH_SIZES = [1, 2, 4]
+DEFAULT_NIREQS = [1, 2, 4]
+
 
 def _get_detection_model_config(config: dict) -> tuple:
     """Extract detection model configuration from pipeline config.
@@ -194,8 +198,8 @@ def run_optimize(args):
         # Allow multiple values for optimization
         param_grid = {
             "object_detection_device": [args.device],
-            "object_detection_batch_size": args.batch_sizes if args.batch_sizes else [1, 2, 4],
-            "object_detection_nireq": args.nireqs if args.nireqs else [1, 2, 4],
+            "object_detection_batch_size": args.batch_sizes if args.batch_sizes else DEFAULT_BATCH_SIZES,
+            "object_detection_nireq": args.nireqs if args.nireqs else DEFAULT_NIREQS,
         }
         
         # Create and run optimizer
