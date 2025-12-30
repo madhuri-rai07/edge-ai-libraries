@@ -227,7 +227,7 @@ python open_bench.py benchmark \
 
 Make sure you're running the script from the correct directory:
 ```bash
-cd /home/runner/work/edge-ai-libraries/edge-ai-libraries/tools/visual-pipeline-and-platform-evaluation-tool
+cd tools/visual-pipeline-and-platform-evaluation-tool
 python open_bench.py --help
 ```
 

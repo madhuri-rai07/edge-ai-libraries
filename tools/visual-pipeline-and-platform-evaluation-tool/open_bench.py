@@ -32,6 +32,41 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def _get_detection_model_config(config: dict) -> tuple:
+    """Extract detection model configuration from pipeline config.
+    
+    Returns:
+        tuple: (detection_models list, detection_default string)
+    """
+    inference_config = config.get("parameters", {}).get("inference", {})
+    detection_models = inference_config.get("detection_models", [])
+    detection_default = inference_config.get("detection_model_default", "")
+    return detection_models, detection_default
+
+
+def _prepare_pipeline_constants(video_path: Path, detection_model: str, args) -> tuple:
+    """Prepare constants and parameters for pipeline execution.
+    
+    Returns:
+        tuple: (video_output_path, constants, param_grid)
+    """
+    return prepare_video_and_constants(
+        input_video_player=str(video_path.absolute()),
+        object_detection_model=detection_model,
+        object_detection_device=args.device,
+        object_detection_batch_size=getattr(args, 'batch_size', 1),
+        object_detection_inference_interval=0.0,
+        object_detection_nireq=getattr(args, 'nireq', 1),
+        object_classification_model="Disabled",
+        object_classification_device=args.device,
+        object_classification_batch_size=1,
+        object_classification_inference_interval=0.0,
+        object_classification_reclassify_interval=0.0,
+        object_classification_nireq=1,
+        pipeline_watermark_enabled=False,
+    )
+
+
 def list_pipelines():
     """List all available pipelines."""
     try:
@@ -69,8 +104,7 @@ def run_benchmark(args):
         logger.info("Preparing pipeline configuration...")
         
         # Get default models from config
-        detection_models = config.get("parameters", {}).get("inference", {}).get("detection_models", [])
-        detection_default = config.get("parameters", {}).get("inference", {}).get("detection_model_default", "")
+        detection_models, detection_default = _get_detection_model_config(config)
         
         if args.detection_model:
             if args.detection_model not in detection_models:
@@ -82,20 +116,8 @@ def run_benchmark(args):
             logger.info(f"Using default detection model: {detection_model}")
         
         # Prepare video and constants
-        video_output_path, constants, param_grid = prepare_video_and_constants(
-            input_video_player=str(video_path.absolute()),
-            object_detection_model=detection_model,
-            object_detection_device=args.device,
-            object_detection_batch_size=args.batch_size,
-            object_detection_inference_interval=0.0,
-            object_detection_nireq=args.nireq,
-            object_classification_model="Disabled",
-            object_classification_device=args.device,
-            object_classification_batch_size=1,
-            object_classification_inference_interval=0.0,
-            object_classification_reclassify_interval=0.0,
-            object_classification_nireq=1,
-            pipeline_watermark_enabled=False,
+        video_output_path, constants, param_grid = _prepare_pipeline_constants(
+            video_path, detection_model, args
         )
         
         # Extract parameters for benchmark
@@ -159,26 +181,13 @@ def run_optimize(args):
         logger.info("Preparing pipeline configuration...")
         
         # Get default models from config
-        detection_models = config.get("parameters", {}).get("inference", {}).get("detection_models", [])
-        detection_default = config.get("parameters", {}).get("inference", {}).get("detection_model_default", "")
+        detection_models, detection_default = _get_detection_model_config(config)
         
         detection_model = args.detection_model if args.detection_model else detection_default
         
         # Prepare video and constants
-        video_output_path, constants, param_grid = prepare_video_and_constants(
-            input_video_player=str(video_path.absolute()),
-            object_detection_model=detection_model,
-            object_detection_device=args.device,
-            object_detection_batch_size=args.batch_size,
-            object_detection_inference_interval=0.0,
-            object_detection_nireq=args.nireq,
-            object_classification_model="Disabled",
-            object_classification_device=args.device,
-            object_classification_batch_size=1,
-            object_classification_inference_interval=0.0,
-            object_classification_reclassify_interval=0.0,
-            object_classification_nireq=1,
-            pipeline_watermark_enabled=False,
+        video_output_path, constants, param_grid = _prepare_pipeline_constants(
+            video_path, detection_model, args
         )
         
         # Create parameter grid for optimization
