@@ -175,7 +175,8 @@ If you're using the Docker setup, you can run `open_bench.py` inside the contain
 
 3. **Run the benchmark inside the container**:
    ```bash
-   cd /home/dlstreamer/vippet
+   # Navigate to the tool directory (default: /home/dlstreamer/vippet)
+   cd $WORKDIR
    python open_bench.py benchmark \
        --pipeline smartnvr \
        --video videos/test_video.mp4 \

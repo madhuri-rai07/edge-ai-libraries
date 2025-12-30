@@ -36,6 +36,24 @@ DEFAULT_BATCH_SIZES = [1, 2, 4]
 DEFAULT_NIREQS = [1, 2, 4]
 
 
+def _build_parameter_dict(device: str, batch_sizes: list, nireqs: list) -> dict:
+    """Build parameter dictionary for pipeline execution.
+    
+    Args:
+        device: Device name (CPU, GPU, NPU)
+        batch_sizes: List of batch sizes to test
+        nireqs: List of nireq values to test
+        
+    Returns:
+        Dictionary of parameters with lists of values
+    """
+    return {
+        "object_detection_device": [device],
+        "object_detection_batch_size": batch_sizes,
+        "object_detection_nireq": nireqs,
+    }
+
+
 def _get_detection_model_config(config: dict) -> tuple:
     """Extract detection model configuration from pipeline config.
     
@@ -124,12 +142,12 @@ def run_benchmark(args):
             video_path, detection_model, args
         )
         
-        # Extract parameters for benchmark
-        parameters = {
-            "object_detection_device": [args.device],
-            "object_detection_batch_size": [args.batch_size],
-            "object_detection_nireq": [args.nireq],
-        }
+        # Build parameters for benchmark
+        parameters = _build_parameter_dict(
+            device=args.device,
+            batch_sizes=[args.batch_size],
+            nireqs=[args.nireq]
+        )
         
         # Create and run benchmark
         logger.info(f"Starting benchmark with FPS floor: {args.fps_floor}, AI stream rate: {args.rate}%")
@@ -194,13 +212,12 @@ def run_optimize(args):
             video_path, detection_model, args
         )
         
-        # Create parameter grid for optimization
-        # Allow multiple values for optimization
-        param_grid = {
-            "object_detection_device": [args.device],
-            "object_detection_batch_size": args.batch_sizes if args.batch_sizes else DEFAULT_BATCH_SIZES,
-            "object_detection_nireq": args.nireqs if args.nireqs else DEFAULT_NIREQS,
-        }
+        # Build parameter grid for optimization
+        param_grid = _build_parameter_dict(
+            device=args.device,
+            batch_sizes=args.batch_sizes if args.batch_sizes else DEFAULT_BATCH_SIZES,
+            nireqs=args.nireqs if args.nireqs else DEFAULT_NIREQS
+        )
         
         # Create and run optimizer
         logger.info(f"Starting optimization with parameter grid: {param_grid}")
